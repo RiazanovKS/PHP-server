@@ -12,7 +12,7 @@ class DepartmentModel
   {
     $statement = "
     SELECT 
-        Id , Name, Salary
+        Id , Name, getDepartmentSalary(Id) as Salary
     FROM
         Department;
     ";
@@ -30,10 +30,27 @@ class DepartmentModel
   {
     $statement = "
           SELECT 
-          Id, Name, Salary
+          Id, Name, getDepartmentSalary($id) as Salary
           FROM
               Department
           WHERE Id = $id;";
+
+    try {
+      $statement = $this->db->query($statement);
+      $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
+      return $result;
+    } catch (\PDOException $e) {
+      exit($e->getMessage());
+    }
+  }
+
+  public function getEmployesByDepartmentId($departmentId)
+  {
+    $statement = "
+      SELECT id,name,salary 
+    FROM
+      Employee
+      WHERE department_id = $departmentId";
 
     try {
       $statement = $this->db->query($statement);
@@ -71,7 +88,6 @@ class DepartmentModel
     UPDATE Department
     SET 
       Name  = :name,
-      Salary = :salary 
           WHERE Id = :id;
       ";
 
@@ -80,7 +96,6 @@ class DepartmentModel
       $statement->execute(array(
         'id' => $id,
         'name' => $department['name'],
-        'salary'  => $department['salary'],
       ));
       return $statement->rowCount();
     } catch (\PDOException $e) {

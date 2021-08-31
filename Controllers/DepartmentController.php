@@ -53,12 +53,13 @@ class DepartmentController
 
   public function getDepartment($id)
   {
-    $result = $this->departmentModel->getDepartment($id);
-    if (!$result) {
+    $department = $this->departmentModel->getDepartment($id)[0];
+    $department['employes'] = $this->departmentModel->getEmployesByDepartmentId($id);
+    if (!$department) {
       return $this->notFoundResponse();
     }
     $response['status_code_header'] = 'HTTP/1.1 200 OK';
-    $response['body'] = json_encode($result);
+    $response['body'] = json_encode($department);
     return $response;
   }
 
@@ -81,6 +82,7 @@ class DepartmentController
   {
     $input = (array) json_decode(file_get_contents('php://input'), TRUE);
     $result = $this->departmentModel->getDepartment($id);
+    var_dump($input);
     if (!$result) {
       return $this->notFoundResponse();
     }
@@ -107,7 +109,7 @@ class DepartmentController
 
   private function validateDepartment($input)
   {
-    return (isset($input['name'], $input['salary']));
+    return (isset($input['name']));
   }
 
   private function notFoundResponse()
